@@ -1,11 +1,13 @@
 """Cliente de Gemini para análisis estructurado de mails.
 
-Wrapper sobre `google.generativeai` con:
+Implementado sobre el SDK `google-genai` (el oficial actual, reemplaza al
+deprecado `google-generativeai`). Provee:
+
 - Carga de credenciales desde `.env` (variable GOOGLE_API_KEY).
 - Selección de modelo según tier: "fast" (Gemini 2.0 Flash) o "quality" (2.5 Pro).
-- Structured output forzado con response_schema=MailAnalysis (Pydantic).
-- Retry con backoff exponencial para errores transitorios (429, 503, network).
-- Logging mínimo del uso de tokens y latencia para monitoreo.
+- Structured output con response_schema=MailAnalysis (Pydantic).
+- Retry con backoff exponencial para errores transitorios.
+- Logging mínimo del uso de tokens y latencia.
 
 Uso típico:
     >>> from src.llm import analyze_mail
@@ -15,6 +17,7 @@ Uso típico:
 """
 from __future__ import annotations
 
+import json
 import os
 import time
 from typing import List, Optional
@@ -38,7 +41,7 @@ class LLMError(RuntimeError):
 
 
 def _get_client():
-    """Configura y devuelve el módulo genai listo para usar."""
+    """Crea y devuelve el cliente genai configurado."""
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key or api_key == "tu_clave_aca":
         raise LLMError(
@@ -46,13 +49,12 @@ def _get_client():
             "completala con tu key de https://aistudio.google.com/app/apikey."
         )
     try:
-        import google.generativeai as genai  # type: ignore
+        from google import genai  # type: ignore
     except ImportError as exc:
         raise LLMError(
-            "Falta google-generativeai. Corré: pip install google-generativeai"
+            "Falta `google-genai`. Corré: pip install google-genai"
         ) from exc
-    genai.configure(api_key=api_key)
-    return genai
+    return genai.Client(api_key=api_key)
 
 
 def analyze_mail(
@@ -82,20 +84,17 @@ def analyze_mail(
     if model_tier not in _MODEL_TIERS:
         raise LLMError(f"model_tier debe ser uno de {list(_MODEL_TIERS)}.")
 
-    genai = _get_client()
+    from google.genai import types  # type: ignore
+
+    client = _get_client()
     model_name = _MODEL_TIERS[model_tier]
     user_prompt = build_user_prompt(mail_text, retrieved_context, few_shot_examples)
 
-    generation_config = {
-        "response_mime_type": "application/json",
-        "response_schema": MailAnalysis,
-        "temperature": 0.2,
-    }
-
-    model = genai.GenerativeModel(
-        model_name,
+    config = types.GenerateContentConfig(
         system_instruction=SYSTEM_PROMPT,
-        generation_config=generation_config,
+        response_mime_type="application/json",
+        response_schema=MailAnalysis,
+        temperature=0.2,
     )
 
     backoff = 1.0
@@ -103,10 +102,18 @@ def analyze_mail(
     for attempt in range(max_retries):
         start = time.perf_counter()
         try:
-            response = model.generate_content(user_prompt)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=user_prompt,
+                config=config,
+            )
             elapsed_ms = (time.perf_counter() - start) * 1000
 
-            parsed: MailAnalysis = response.parsed  # Pydantic ya validado por SDK
+            # El SDK nuevo expone .parsed cuando usás response_schema con Pydantic.
+            parsed: Optional[MailAnalysis] = getattr(response, "parsed", None)
+            if parsed is None:
+                # Fallback: parseamos a mano desde el texto JSON crudo.
+                parsed = MailAnalysis.model_validate(json.loads(response.text))
 
             if verbose:
                 usage = getattr(response, "usage_metadata", None)
@@ -119,7 +126,7 @@ def analyze_mail(
 
             return parsed
 
-        except Exception as exc:  # noqa: BLE001 — SDK lanza varios tipos
+        except Exception as exc:  # noqa: BLE001
             last_error = exc
             if verbose:
                 print(f"  Intento {attempt + 1}/{max_retries} falló: {exc!s}")
