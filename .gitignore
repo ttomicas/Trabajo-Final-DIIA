@@ -1,0 +1,56 @@
+# --- Secretos ---
+.env
+*.env
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Entornos virtuales ---
+.venv/
+venv/
+env/
+
+# --- Caches de modelos ---
+.cache/
+hf_cache/
+sentence_transformers_cache/
+
+# --- Vector store local ---
+data/chroma/
+*.sqlite3
+
+# --- Datos pesados ---
+data/raw/
+data/processed/
+
+# --- Modelos serializados ---
+*.pkl
+*.joblib
+*.bin
+*.pt
+
+# --- Gradio / Streamlit ---
+flagged/
+gradio_cached_examples/
+.streamlit/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
