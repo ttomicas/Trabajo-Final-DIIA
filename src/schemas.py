@@ -55,8 +55,8 @@ class MailAnalysis(BaseModel):
     """
     intent: Intent = Field(..., description="Categoría de intención clasificada.")
     confidence: float = Field(
-        ..., ge=0.0, le=1.0,
-        description="Confianza del modelo en la clasificación (0.0 a 1.0)."
+        ...,
+        description="Confianza del modelo en la clasificación entre 0.0 y 1.0."
     )
     summary: str = Field(
         ..., description="Resumen del mail en 1-2 líneas, máximo 30 palabras."
