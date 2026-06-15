@@ -31,15 +31,15 @@ from .schemas import MailAnalysis
 load_dotenv()
 
 
-# Nota: Gemini 1.5 fue deprecado por Google. Gemini 2.0 Flash quedó restringido
-# del free tier en algunas regiones (incluyendo Argentina). Gemini 2.5 es la
-# generación actual estable con free tier disponible globalmente:
-#   - 2.5 Flash: 15 RPM, 1M tokens/día → ideal para clasificación + resumen.
-#   - 2.5 Pro:   ~5 RPM, calidad alta → ideal para respuesta sugerida.
-# Para producción con billing, se puede sobreescribir vía .env.
+# Nota sobre modelos: en el free tier de nuestra región (LATAM) las cuotas
+# diarias son muy ajustadas (20 requests/día para 2.5 Flash). Usamos los
+# modelos "lite" como default por su cuota diaria más generosa:
+#   - 2.5 Flash Lite: 1000 requests/día free tier → suficiente para PoC.
+#   - 2.5 Flash:      20 RPD free tier → reservado para tareas de calidad.
+# Para producción con billing habilitado, se puede sobreescribir vía .env.
 _MODEL_TIERS = {
-    "fast":    os.getenv("GEMINI_FAST_MODEL",    "gemini-2.5-flash"),
-    "quality": os.getenv("GEMINI_QUALITY_MODEL", "gemini-2.5-pro"),
+    "fast":    os.getenv("GEMINI_FAST_MODEL",    "gemini-2.5-flash-lite"),
+    "quality": os.getenv("GEMINI_QUALITY_MODEL", "gemini-2.5-flash"),
 }
 
 
