@@ -30,9 +30,14 @@ from .schemas import MailAnalysis
 load_dotenv()
 
 
+# Nota: usamos gemini-1.5-flash como default porque Gemini 2.0 Flash y 2.5 Pro
+# no tienen free tier disponible en algunas regiones (entre ellas Argentina).
+# 1.5 Flash sigue con free tier generoso (15 RPM, 1M tokens/día) y rinde
+# excelente para clasificación + resumen. Para producción con billing, se
+# puede sobreescribir vía .env (GEMINI_FAST_MODEL / GEMINI_QUALITY_MODEL).
 _MODEL_TIERS = {
-    "fast":    os.getenv("GEMINI_FAST_MODEL",    "gemini-2.0-flash"),
-    "quality": os.getenv("GEMINI_QUALITY_MODEL", "gemini-2.5-pro"),
+    "fast":    os.getenv("GEMINI_FAST_MODEL",    "gemini-1.5-flash"),
+    "quality": os.getenv("GEMINI_QUALITY_MODEL", "gemini-1.5-pro"),
 }
 
 
