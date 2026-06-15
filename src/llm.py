@@ -25,7 +25,11 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 
-from .prompts import SYSTEM_PROMPT, build_user_prompt
+from .prompts import (
+    SYSTEM_PROMPT_BASELINE,
+    SYSTEM_PROMPT_RAG,
+    build_user_prompt,
+)
 from .schemas import MailAnalysis
 
 load_dotenv()
@@ -113,8 +117,14 @@ def analyze_mail(
     model_name = _MODEL_TIERS[model_tier]
     user_prompt = build_user_prompt(mail_text, retrieved_context, few_shot_examples)
 
+    # Si hay contexto recuperado del KB, usamos el prompt RAG (genera
+    # suggested_response y cita sources); si no, el prompt baseline.
+    system_prompt = (
+        SYSTEM_PROMPT_RAG if retrieved_context else SYSTEM_PROMPT_BASELINE
+    )
+
     config = types.GenerateContentConfig(
-        system_instruction=SYSTEM_PROMPT,
+        system_instruction=system_prompt,
         response_mime_type="application/json",
         response_schema=MailAnalysis,
         temperature=0.2,
