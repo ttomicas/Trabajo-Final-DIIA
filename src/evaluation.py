@@ -200,7 +200,7 @@ def _judge_call(system_prompt: str, user_payload: str,
 
 
 def judge_faithfulness(retrieved_context: List[str], suggested_response: str,
-                       model_tier: str = "fast") -> JudgeResult:
+                       model_tier: str = "quality") -> JudgeResult:
     """Evalúa si la respuesta sugerida está fundamentada en el contexto."""
     payload = (
         f"=== CONTEXTO ===\n{chr(10).join(retrieved_context)}\n\n"
@@ -210,7 +210,7 @@ def judge_faithfulness(retrieved_context: List[str], suggested_response: str,
 
 
 def judge_answer_relevance(mail: str, suggested_response: str,
-                           model_tier: str = "fast") -> JudgeResult:
+                           model_tier: str = "quality") -> JudgeResult:
     """Evalúa si la respuesta efectivamente aborda el mail del cliente."""
     payload = (
         f"=== MAIL ===\n{mail}\n\n"
