@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from typing import List, Optional
 
@@ -46,6 +47,22 @@ class LLMError(RuntimeError):
     """Excepción de alto nivel para errores recuperables o no del cliente LLM."""
 
 
+_RETRY_DELAY_PATTERNS = [
+    re.compile(r"retry in (\d+(?:\.\d+)?)s"),
+    re.compile(r"'retryDelay':\s*'(\d+(?:\.\d+)?)s'"),
+]
+
+
+def _extract_retry_delay(exc: BaseException) -> Optional[float]:
+    """Si la API devuelve un retryDelay (típico en 429), lo parseamos y respetamos."""
+    msg = str(exc)
+    for pattern in _RETRY_DELAY_PATTERNS:
+        m = pattern.search(msg)
+        if m:
+            return float(m.group(1))
+    return None
+
+
 def _get_client():
     """Crea y devuelve el cliente genai configurado."""
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -68,7 +85,7 @@ def analyze_mail(
     model_tier: str = "fast",
     retrieved_context: Optional[List[str]] = None,
     few_shot_examples: Optional[List[dict]] = None,
-    max_retries: int = 3,
+    max_retries: int = 5,
     verbose: bool = False,
 ) -> MailAnalysis:
     """Analiza un mail con Gemini y devuelve un MailAnalysis validado.
@@ -134,11 +151,21 @@ def analyze_mail(
 
         except Exception as exc:  # noqa: BLE001
             last_error = exc
-            if verbose:
-                print(f"  Intento {attempt + 1}/{max_retries} falló: {exc!s}")
-            if attempt < max_retries - 1:
-                time.sleep(backoff)
+            # Si el servidor nos dice exactamente cuánto esperar (rate limit),
+            # respetamos ese delay. Si no, backoff exponencial clásico.
+            server_delay = _extract_retry_delay(exc)
+            if server_delay is not None:
+                wait_s = server_delay + 1.0  # margen de 1s para seguridad
+            else:
+                wait_s = backoff
                 backoff *= 2
+
+            if verbose:
+                hint = f" (servidor pidió {server_delay:.0f}s)" if server_delay else ""
+                print(f"  Intento {attempt + 1}/{max_retries} falló{hint}. "
+                      f"Esperando {wait_s:.1f}s antes de reintentar.")
+            if attempt < max_retries - 1:
+                time.sleep(wait_s)
 
     raise LLMError(
         f"Falló después de {max_retries} reintentos. Último error: {last_error!s}"
