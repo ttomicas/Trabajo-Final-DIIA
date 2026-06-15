@@ -1,0 +1,168 @@
+{
+  "description": "Ground truth para evaluación del retrieval y RAG. Cada entrada es un mail con la categoría de negocio esperada y los doc_ids de las FAQs que el retriever debería encontrar como relevantes. Los relevance_scores se usan para nDCG (1.0 = doc ideal, 0.5 = parcialmente útil, 0 = irrelevante).",
+  "version": "1.0",
+  "n_mails": 15,
+  "language_distribution": {"en": 8, "es": 7},
+  "mails": [
+    {
+      "id": 1,
+      "language": "en",
+      "category": "ACCOUNT",
+      "mail": "Hi, I forgot my password and the recovery email never arrives. What should I do?",
+      "relevance": {
+        "account_password-reset__0": 1.0,
+        "account_account-locked__0": 0.5,
+        "account_email-verification__0": 0.3
+      }
+    },
+    {
+      "id": 2,
+      "language": "es",
+      "category": "ACCOUNT",
+      "mail": "Hola, no puedo iniciar sesión, parece que mi cuenta fue bloqueada.",
+      "relevance": {
+        "account_account-locked__0": 1.0,
+        "account_password-reset__0": 0.5,
+        "account_recuperar-contrasena-es__0": 0.5
+      }
+    },
+    {
+      "id": 3,
+      "language": "en",
+      "category": "ORDER",
+      "mail": "I want to cancel order #A-2847 that I placed yesterday. The shipping address was wrong.",
+      "relevance": {
+        "order_cancel-order__0": 1.0,
+        "order_modify-order__0": 0.5
+      }
+    },
+    {
+      "id": 4,
+      "language": "es",
+      "category": "ORDER",
+      "mail": "Mi pedido no llegó, ¿qué hago?",
+      "relevance": {
+        "order_pedido-no-llego-es__0": 1.0,
+        "order_order-not-arrived__0": 1.0,
+        "order_track-order__0": 0.5
+      }
+    },
+    {
+      "id": 5,
+      "language": "en",
+      "category": "REFUND",
+      "mail": "My last payment of $149.99 was charged twice on my Visa. I need a refund of the duplicated charge immediately.",
+      "relevance": {
+        "refund_duplicate-charge__0": 1.0,
+        "refund_how-to-request-refund__0": 0.5,
+        "refund_refund-policy__0": 0.3
+      }
+    },
+    {
+      "id": 6,
+      "language": "es",
+      "category": "REFUND",
+      "mail": "¿Cuánto tarda en llegarme un reembolso después de que lo aprueban?",
+      "relevance": {
+        "refund_tiempo-reembolso-es__0": 1.0,
+        "refund_refund-credited-where__0": 1.0,
+        "refund_refund-policy__0": 0.5
+      }
+    },
+    {
+      "id": 7,
+      "language": "en",
+      "category": "PAYMENT",
+      "mail": "Can I update the credit card I have on file? The current one is about to expire.",
+      "relevance": {
+        "payment_update-credit-card__0": 1.0,
+        "payment_payment-declined__0": 0.3
+      }
+    },
+    {
+      "id": 8,
+      "language": "es",
+      "category": "PAYMENT",
+      "mail": "¿Cómo descargo mi factura del último pedido?",
+      "relevance": {
+        "payment_descargar-factura-es__0": 1.0,
+        "payment_download-invoice__0": 1.0
+      }
+    },
+    {
+      "id": 9,
+      "language": "en",
+      "category": "CONTACT",
+      "mail": "What are your customer service hours?",
+      "relevance": {
+        "contact_customer-service-hours__0": 1.0,
+        "contact_phone-support__0": 0.5,
+        "contact_live-chat__0": 0.3
+      }
+    },
+    {
+      "id": 10,
+      "language": "es",
+      "category": "CONTACT",
+      "mail": "Necesito hablar con un agente humano por favor.",
+      "relevance": {
+        "contact_hablar-con-agente-es__0": 1.0,
+        "contact_speak-to-human__0": 1.0,
+        "contact_live-chat__0": 0.3
+      }
+    },
+    {
+      "id": 11,
+      "language": "en",
+      "category": "REFUND",
+      "mail": "The product I received is broken. How can I return it for a refund?",
+      "relevance": {
+        "refund_defective-product-return__0": 1.0,
+        "refund_how-to-request-refund__0": 0.5,
+        "refund_refund-policy__0": 0.3
+      }
+    },
+    {
+      "id": 12,
+      "language": "es",
+      "category": "ORDER",
+      "mail": "Quiero cancelar el pedido que hice ayer porque me equivoqué con la dirección.",
+      "relevance": {
+        "order_cancel-order__0": 1.0,
+        "order_modify-order__0": 0.5
+      }
+    },
+    {
+      "id": 13,
+      "language": "en",
+      "category": "ACCOUNT",
+      "mail": "I want to permanently delete my account and all my data.",
+      "relevance": {
+        "account_delete-account__0": 1.0,
+        "account_update-personal-info__0": 0.3
+      }
+    },
+    {
+      "id": 14,
+      "language": "es",
+      "category": "PAYMENT",
+      "mail": "Mi tarjeta fue rechazada al pagar, ¿qué puedo hacer?",
+      "relevance": {
+        "payment_payment-declined__0": 1.0,
+        "payment_accepted-payment-methods__0": 0.5,
+        "payment_update-credit-card__0": 0.5
+      }
+    },
+    {
+      "id": 15,
+      "language": "en",
+      "category": "CONTACT",
+      "mail": "What's your email address for support inquiries?",
+      "relevance": {
+        "contact_email-contact__0": 1.0,
+        "contact_response-time-sla__0": 0.5,
+        "contact_customer-service-hours__0": 0.3
+      }
+    }
+  ]
+}
